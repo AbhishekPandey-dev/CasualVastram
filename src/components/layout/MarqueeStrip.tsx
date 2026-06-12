@@ -59,7 +59,7 @@ export default function MarqueeStrip({
         >
           {/* Group 1: Visible to screen readers */}
           <ul
-            role="group"
+            role="list"
             className="flex items-center list-none p-0 m-0 gap-[120px] pr-[120px] whitespace-nowrap"
           >
             {tickerItems.map((item, index) => (
@@ -81,7 +81,7 @@ export default function MarqueeStrip({
 
           {/* Group 2: Hidden from screen readers, identical width for seamless loop match */}
           <ul
-            role="group"
+            role="list"
             className="flex items-center list-none p-0 m-0 gap-[120px] pr-[120px] whitespace-nowrap"
             aria-hidden="true"
           >
