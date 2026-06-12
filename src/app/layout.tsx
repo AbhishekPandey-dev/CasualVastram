@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Syne, Inter } from "next/font/google";
 import "./globals.css";
+import MarqueeStrip from "@/components/layout/MarqueeStrip";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -28,8 +31,15 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${syne.variable} ${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <MarqueeStrip />
+        <Navbar />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }
+
