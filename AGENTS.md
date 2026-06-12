@@ -1,5 +1,1 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+check the C:\Users\X\.gemini\GEMINI.md and C:\Users\X\Desktop\harry\casual_vastam\AGENTS_SOP.md for complete multi-phase operating protocol (discovery, architecture, design, development, review, security, deployment, testing, documentation, observability) and follow the instructions carefully and always use the skills properly and always use the skills properly and don't miss any step and always use the skills properly and always use the skills properly
