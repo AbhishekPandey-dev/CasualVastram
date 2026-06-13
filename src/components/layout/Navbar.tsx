@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, ShoppingBag, Menu, X, Heart, User } from "lucide-react";
+import { SearchIcon, ShoppingBagIcon, MenuIcon, XIcon, HeartIcon, UserIcon } from "@animateicons/react/lucide";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/store/cart";
@@ -58,7 +58,7 @@ export default function Navbar() {
   }, [isSearchOpen]);
 
   return (
-    <header className="relative w-full bg-snow-white text-jet-black border-b border-border-color z-50">
+    <header className="sticky top-0 w-full bg-snow-white text-jet-black border-b border-border-color z-50">
       {/* Main Navbar Container */}
       <div className="w-full px-4 md:px-6 h-[56px] flex items-center justify-between">
         
@@ -86,7 +86,7 @@ export default function Navbar() {
             className="p-1 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer rounded-none"
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            {isMobileMenuOpen ? <XIcon size={18} /> : <MenuIcon size={18} />}
           </button>
         </div>
 
@@ -118,7 +118,7 @@ export default function Navbar() {
             )}
             aria-label="Search"
           >
-            <Search size={18} strokeWidth={1.5} />
+            <SearchIcon size={18} />
           </button>
 
           {/* User/Account Button */}
@@ -127,7 +127,7 @@ export default function Navbar() {
             className="hidden md:flex p-1.5 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer rounded-none"
             aria-label="Account"
           >
-            <User size={18} strokeWidth={1.5} />
+            <UserIcon size={18} />
           </Link>
 
           {/* Wishlist Button */}
@@ -136,7 +136,7 @@ export default function Navbar() {
             className="p-1.5 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer relative rounded-none flex items-center justify-center"
             aria-label="Wishlist"
           >
-            <Heart size={18} strokeWidth={1.5} />
+            <HeartIcon size={18} />
             {wishlistCount > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 bg-jet-black text-snow-white text-[9px] font-bold font-inter flex items-center justify-center border border-border-color rounded-none select-none">
                 {wishlistCount}
@@ -150,7 +150,7 @@ export default function Navbar() {
             className="p-1.5 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer relative rounded-none flex items-center justify-center"
             aria-label="Shopping bag"
           >
-            <ShoppingBag size={18} strokeWidth={1.5} />
+            <ShoppingBagIcon size={18} />
             {itemCount > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 bg-jet-black text-snow-white text-[9px] font-bold font-inter flex items-center justify-center border border-border-color rounded-none select-none">
                 {itemCount}
@@ -184,7 +184,7 @@ export default function Navbar() {
                 className="p-3 border border-border-color text-jet-black hover:text-graphite-gray hover:border-jet-black transition-colors cursor-pointer rounded-none flex items-center justify-center"
                 aria-label="Close search"
               >
-                <X size={18} />
+                <XIcon size={18} />
               </button>
             </div>
           </motion.div>
@@ -219,7 +219,7 @@ export default function Navbar() {
                 className="font-inter text-[14px] font-semibold tracking-[0.12em] uppercase text-jet-black hover:text-graphite-gray transition-colors flex items-center gap-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <User size={18} strokeWidth={1.5} />
+                <UserIcon size={18} />
                 <span>Account</span>
               </Link>
               
