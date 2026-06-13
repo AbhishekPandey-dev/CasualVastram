@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from 'react';
-import { InstagramIcon, type InstagramIconHandle } from '@/components/ui/animated-instagram-icon';
+import { InstagramIcon } from '@animateicons/react/lucide';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface InstagramItem {
@@ -30,25 +30,25 @@ const INSTAGRAM_DATA: InstagramItem[] = [{
 
 const PromoCard = ({ item }: { item: InstagramItem }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const iconRef = useRef<InstagramIconHandle>(null);
+  const iconRef = useRef<any>(null);
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    // Programmatically trigger the animateicons animation
-    iconRef.current?.startAnimation?.();
-  };
+  React.useEffect(() => {
+    if (isHovered) {
+      iconRef.current?.startAnimation?.();
+    } else {
+      iconRef.current?.stopAnimation?.();
+    }
+  }, [isHovered]);
 
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    iconRef.current?.stopAnimation?.();
-  };
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => setIsHovered(false);
 
   return (
     <motion.a 
       href="https://www.instagram.com/Casualvastram"
       target="_blank"
       rel="noopener noreferrer"
-      className="relative h-full shrink-0 aspect-[3/4] snap-center cursor-pointer overflow-hidden bg-bg-subtle block"
+      className="relative w-full h-full aspect-[3/4] cursor-pointer overflow-hidden bg-bg-subtle block shadow-sm"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -69,46 +69,43 @@ const PromoCard = ({ item }: { item: InstagramItem }) => {
       />
 
       {/* Centered Minimalist Instagram Icon */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          >
-            {/* isAnimated={false} disables direct hover so we can trigger it programmatically via parent card hover */}
-            <InstagramIcon ref={iconRef} size={56} color="#FEFDFB" isAnimated={false} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.div 
+        initial={false}
+        animate={{ 
+          opacity: isHovered ? 1 : 0, 
+          scale: isHovered ? 1 : 0.5 
+        }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <InstagramIcon ref={iconRef} size={56} color="#FEFDFB" isAnimated={false} />
+      </motion.div>
     </motion.a>
   );
 };
 
 export const InstagramPromo: React.FC = () => {
   return (
-    <section className="w-full bg-snow-white h-[calc(100vh-56px)] py-6 md:py-10 flex flex-col items-center justify-between overflow-hidden">
-      <div className="max-w-7xl w-full px-4 text-center shrink-0">
-        <h2 className="text-2xl md:text-4xl font-bold text-jet-black mb-2 uppercase tracking-tight font-syne">
+    <section className="w-full bg-snow-white py-12 md:py-20 flex flex-col items-center overflow-hidden">
+      <div className="max-w-7xl w-full px-4 text-center shrink-0 mb-8 md:mb-12">
+        <h2 className="text-3xl md:text-5xl font-bold text-jet-black mb-3 md:mb-4 uppercase tracking-tight font-syne">
           Follow us on Instagram
         </h2>
-        <p className="text-xs md:text-sm text-graphite-gray mb-4 md:mb-6 max-w-2xl mx-auto font-inter uppercase tracking-wider">
+        <p className="text-base md:text-lg text-graphite-gray max-w-2xl mx-auto font-inter uppercase tracking-wider">
           Join the community @casualvastram and tag us to get featured.
         </p>
       </div>
 
-      <div className="w-full flex-1 min-h-0 flex items-center justify-start overflow-hidden px-4 md:px-8">
-        {/* Horizontal Filmstrip Layout */}
-        <div className="flex flex-nowrap gap-4 md:gap-6 h-[85%] max-h-[60vh] w-full overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scroll items-center md:justify-center">
+      <div className="w-full px-6 sm:px-12 md:px-8 max-w-5xl lg:max-w-7xl mx-auto">
+        {/* Responsive Instagram Grid Layout */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 w-full">
           {INSTAGRAM_DATA.map(item => (
             <PromoCard key={item.id} item={item} />
           ))}
         </div>
       </div>
 
-      <div className="mt-4 md:mt-6 shrink-0">
+      <div className="mt-10 md:mt-16 shrink-0">
         <motion.a 
           href="https://www.instagram.com/Casualvastram" 
           target="_blank"
@@ -120,19 +117,6 @@ export const InstagramPromo: React.FC = () => {
           @casualvastram
         </motion.a>
       </div>
-
-      {/* Local styles for hiding scrollbar reliably across all browsers */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .hide-scroll::-webkit-scrollbar {
-            display: none;
-          }
-          .hide-scroll {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-        `
-      }} />
     </section>
   );
 };
