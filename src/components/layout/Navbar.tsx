@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Search, ShoppingBag, Menu, X, Heart, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -92,10 +93,13 @@ export default function Navbar() {
         {/* Center: Brand Logo SVG (Black variant on Snow White bg) */}
         <div className="flex flex-1 justify-center items-center">
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img
+            <Image
               src="/assets/casual-vastram-logo-black.svg"
               alt="Casual Vastram Logo"
+              width={180}
+              height={30}
               className="h-[22px] md:h-[26px] w-auto select-none"
+              priority
             />
           </Link>
         </div>
