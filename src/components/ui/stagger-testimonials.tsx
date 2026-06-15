@@ -8,7 +8,6 @@ export interface Testimonial {
   id: string | number;
   quote: string;
   author: string;
-  avatarUrl: string;
 }
 
 export interface StaggerTestimonialsProps {
@@ -21,62 +20,52 @@ const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
     id: 0,
     quote: "The fabric quality is unreal. I've washed this hoodie 20 times and it still feels brand new.",
-    author: "Alex, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=11"
+    author: "Alex, Verified Buyer"
   },
   {
     id: 1,
     quote: "Finally, an oversized tee that actually drapes perfectly instead of just looking boxy.",
-    author: "Dan, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=12"
+    author: "Dan, Verified Buyer"
   },
   {
     id: 2,
     quote: "My go-to brand for streetwear now. The minimalism and quality are unmatched.",
-    author: "Stephanie, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=10"
+    author: "Stephanie, Verified Buyer"
   },
   {
     id: 3,
     quote: "The shipping was incredibly fast and the packaging felt so premium. 10/10 experience.",
-    author: "Marie, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=4"
+    author: "Marie, Verified Buyer"
   },
   {
     id: 4,
     quote: "I get compliments on the Jet Black hoodie every time I wear it.",
-    author: "Andre, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=15"
+    author: "Andre, Verified Buyer"
   },
   {
     id: 5,
     quote: "Obsessed with the fit and the sharp, minimalist aesthetic. Absolutely perfect.",
-    author: "Jeremy, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=16"
+    author: "Jeremy, Verified Buyer"
   },
   {
     id: 6,
     quote: "It's so hard to find premium basics that don't cost a fortune. Casual Vastram nailed it.",
-    author: "Pam, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=17"
+    author: "Pam, Verified Buyer"
   },
   {
     id: 7,
     quote: "The subtle detailing and zero-compromise quality make this my favorite t-shirt.",
-    author: "Daniel, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=8"
+    author: "Daniel, Verified Buyer"
   },
   {
     id: 8,
     quote: "It's just the best. Period. No flashy logos, just pure comfort and style.",
-    author: "Fernando, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=9"
+    author: "Fernando, Verified Buyer"
   },
   {
     id: 9,
     quote: "I switched my entire wardrobe to these basics 5 months ago and never looked back.",
-    author: "Andy, Verified Buyer",
-    avatarUrl: "https://i.pravatar.cc/150?img=20"
+    author: "Andy, Verified Buyer"
   }
 ];
 
@@ -124,14 +113,21 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
       }}
       aria-label={`View testimonial by ${testimonial.author}`}
     >
-      <img
-        src={testimonial.avatarUrl}
-        alt={testimonial.author.split(",")[0]}
+      <div 
         className={cn(
-          "mb-4 sm:mb-6 h-12 w-10 sm:h-14 sm:w-12 object-cover object-top grayscale border rounded-none",
+          "mb-4 sm:mb-6 h-12 w-12 sm:h-14 sm:w-14 border rounded-none p-2 flex items-center justify-center overflow-hidden",
           isCenter ? "border-snow-white" : "border-jet-black"
         )}
-      />
+      >
+        <img
+          src="/assets/profile-icon.svg"
+          alt={testimonial.author.split(",")[0]}
+          className={cn(
+            "w-full h-full object-contain",
+            isCenter && "invert"
+          )}
+        />
+      </div>
       <h3
         className={cn(
           "text-base sm:text-lg md:text-xl font-syne font-bold leading-[1.2] tracking-tight",
@@ -192,7 +188,7 @@ export const StaggerTestimonials: React.FC<StaggerTestimonialsProps> = ({
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden bg-bg-subtle",
+        "relative w-full overflow-hidden bg-snow-white",
         "h-[500px] md:h-[600px]", // Responsive height
         className
       )}
