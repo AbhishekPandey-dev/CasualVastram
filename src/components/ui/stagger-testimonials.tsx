@@ -19,53 +19,53 @@ export interface StaggerTestimonialsProps {
 const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
     id: 0,
-    quote: "The fabric quality is unreal. I've washed this hoodie 20 times and it still feels brand new.",
-    author: "Alex, Verified Buyer"
+    quote: "Bhai ekdum solid hoodie hai. 3 baar wash kiya, colour bilkul wahi hai. Itna acha fabric pehli baar mila.",
+    author: "Rohit S., Delhi"
   },
   {
     id: 1,
-    quote: "Finally, an oversized tee that actually drapes perfectly instead of just looking boxy.",
-    author: "Dan, Verified Buyer"
+    quote: "The oversized fit is genuinely perfect — not too boxy, not too long. Wore it to college and got 4 compliments on day one.",
+    author: "Ananya M., Bangalore"
   },
   {
     id: 2,
-    quote: "My go-to brand for streetwear now. The minimalism and quality are unmatched.",
-    author: "Stephanie, Verified Buyer"
+    quote: "Maine bohot brands try kiye but ye wala tee ka feel alag hi hai. Soft hai, heavy nahi lagta, aur look premium hai.",
+    author: "Arjun K., Mumbai"
   },
   {
     id: 3,
-    quote: "The shipping was incredibly fast and the packaging felt so premium. 10/10 experience.",
-    author: "Marie, Verified Buyer"
+    quote: "Packaging dekh ke hi samajh aa gaya ki brand serious hai. T-shirt bhi exactly as shown. No complaints at all.",
+    author: "Priya R., Pune"
   },
   {
     id: 4,
-    quote: "I get compliments on the Jet Black hoodie every time I wear it.",
-    author: "Andre, Verified Buyer"
+    quote: "I was skeptical ordering online but the hoodie quality genuinely surprised me. Worth every rupee honestly.",
+    author: "Karan D., Hyderabad"
   },
   {
     id: 5,
-    quote: "Obsessed with the fit and the sharp, minimalist aesthetic. Absolutely perfect.",
-    author: "Jeremy, Verified Buyer"
+    quote: "Mujhe minimalist pasand hai aur ye brand exactly wahi deta hai. No loud logos, bas clean design. Repeat order done.",
+    author: "Sneha T., Jaipur"
   },
   {
     id: 6,
-    quote: "It's so hard to find premium basics that don't cost a fortune. Casual Vastram nailed it.",
-    author: "Pam, Verified Buyer"
+    quote: "Oversized tee liya tha casual outing ke liye. Ab har weekend ye hi pehenta hu. Comfort level 10/10.",
+    author: "Varun P., Lucknow"
   },
   {
     id: 7,
-    quote: "The subtle detailing and zero-compromise quality make this my favorite t-shirt.",
-    author: "Daniel, Verified Buyer"
+    quote: "Finally a brand that understands Indian weather and still makes hoodies that you actually want to wear. Love the weight of the fabric.",
+    author: "Isha G., Chandigarh"
   },
   {
     id: 8,
-    quote: "It's just the best. Period. No flashy logos, just pure comfort and style.",
-    author: "Fernando, Verified Buyer"
+    quote: "Dost ko gift kiya tha, usne bhi apne liye order kar liya next day. Quality speaks for itself.",
+    author: "Aditya V., Indore"
   },
   {
     id: 9,
-    quote: "I switched my entire wardrobe to these basics 5 months ago and never looked back.",
-    author: "Andy, Verified Buyer"
+    quote: "I've been wearing the same black tee for 4 months straight. Still no fading, no pilling. This is my go-to brand now.",
+    author: "Meera J., Chennai"
   }
 ];
 
