@@ -50,3 +50,6 @@ next-env.d.ts
 
 # Example 
 example.md
+
+#mpc files 
+.playwright-mcp/

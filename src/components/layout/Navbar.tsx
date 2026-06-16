@@ -31,13 +31,13 @@ const NAV_LINKS: NavLink[] = [
 
 /**
  * The brand-aligned Navbar navigation shell for Casual Vastram.
- * Handles responsive layout sizing, mobile menu overlays, slide-down search bar toggles,
- * and live cart/wishlist Zustand store indicators.
+ * Redesigned for Awwward-level Luxury Minimal aesthetic.
  */
 export default function Navbar() {
   // Navigation states
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   // Live Zustand stores data integration
@@ -57,21 +57,56 @@ export default function Navbar() {
     }
   }, [isSearchOpen]);
 
+  // Scroll detection for frosted glass effect
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Lock body scroll when mobile menu is open
+  React.useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   return (
-    <header className="sticky top-0 w-full bg-snow-white text-jet-black border-b border-border-color z-50">
+    <header 
+      className={cn(
+        "sticky top-0 w-full z-50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+        isScrolled || isMobileMenuOpen || isSearchOpen 
+          ? "bg-snow-white/90 backdrop-blur-xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] py-2" 
+          : "bg-snow-white py-5"
+      )}
+    >
       {/* Main Navbar Container */}
-      <div className="w-full px-4 md:px-6 h-[56px] flex items-center justify-between">
+      <div className="w-full px-6 md:px-10 flex items-center justify-between">
         
         {/* Left: Desktop Navigation Links */}
-        <nav className="hidden md:flex flex-1 items-center gap-6 lg:gap-8">
+        <nav className="hidden md:flex flex-1 items-center gap-8 group/nav">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="font-inter text-[12px] font-medium tracking-[0.1em] uppercase text-graphite-gray hover:text-jet-black transition-colors duration-250 relative py-1 group"
+              className="group relative px-1 py-2 font-inter text-[11px] font-bold tracking-[0.15em] uppercase whitespace-nowrap transition-opacity duration-300 hover:!opacity-100 group-hover/nav:opacity-40"
             >
-              <span>{link.label}</span>
-              <span className="absolute bottom-0 left-0 w-full h-[1px] bg-jet-black origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]" />
+              <span className="relative flex overflow-hidden">
+                <span className="block text-graphite-gray transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
+                  {link.label}
+                </span>
+                <span className="absolute top-full block text-jet-black transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full" aria-hidden="true">
+                  {link.label}
+                </span>
+              </span>
             </Link>
           ))}
         </nav>
@@ -83,29 +118,29 @@ export default function Navbar() {
               setIsMobileMenuOpen(!isMobileMenuOpen);
               setIsSearchOpen(false); // Close search when opening menu
             }}
-            className="p-1 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer rounded-none"
+            className="p-2 -ml-2 text-jet-black hover:text-graphite-gray transition-all cursor-pointer rounded-full hover:bg-black/5 active:scale-95"
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <XIcon size={18} /> : <MenuIcon size={18} />}
+            {isMobileMenuOpen ? <XIcon size={20} /> : <MenuIcon size={20} />}
           </button>
         </div>
 
-        {/* Center: Brand Logo SVG (Black variant on Snow White bg) */}
+        {/* Center: Brand Logo SVG */}
         <div className="flex flex-1 justify-center items-center">
-          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center group">
             <Image
               src="/assets/casual-vastram-logo-black.svg"
               alt="Casual Vastram Logo"
-              width={180}
-              height={30}
-              className="h-[22px] md:h-[26px] w-auto select-none"
+              width={200}
+              height={34}
+              className="h-[24px] md:h-[28px] w-auto select-none transition-opacity duration-300 group-hover:opacity-60"
               priority
             />
           </Link>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex flex-1 justify-end items-center gap-3 md:gap-4">
+        <div className="flex flex-1 justify-end items-center gap-1 md:gap-2">
           {/* Search Button */}
           <button
             onClick={() => {
@@ -113,8 +148,8 @@ export default function Navbar() {
               setIsMobileMenuOpen(false); // Close mobile menu when opening search
             }}
             className={cn(
-              "p-1.5 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer rounded-none",
-              isSearchOpen ? "text-graphite-gray" : ""
+              "p-2 text-jet-black hover:text-graphite-gray transition-all cursor-pointer rounded-full hover:bg-black/5 active:scale-95",
+              isSearchOpen ? "text-graphite-gray bg-black/5" : ""
             )}
             aria-label="Search"
           >
@@ -124,7 +159,7 @@ export default function Navbar() {
           {/* User/Account Button */}
           <Link
             href="/account"
-            className="hidden md:flex p-1.5 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer rounded-none"
+            className="hidden md:flex p-2 text-jet-black hover:text-graphite-gray transition-all cursor-pointer rounded-full hover:bg-black/5 active:scale-95"
             aria-label="Account"
           >
             <UserIcon size={18} />
@@ -133,12 +168,12 @@ export default function Navbar() {
           {/* Wishlist Button */}
           <Link
             href="/wishlist"
-            className="p-1.5 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer relative rounded-none flex items-center justify-center"
+            className="p-2 text-jet-black hover:text-graphite-gray transition-all cursor-pointer relative rounded-full hover:bg-black/5 active:scale-95 flex items-center justify-center"
             aria-label="Wishlist"
           >
             <HeartIcon size={18} />
             {wishlistCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 bg-jet-black text-snow-white text-[9px] font-bold font-inter flex items-center justify-center border border-border-color rounded-none select-none">
+              <span className="absolute 1 top-0 right-0 min-w-[16px] h-[16px] bg-jet-black text-snow-white text-[9px] font-bold font-inter flex items-center justify-center rounded-full select-none">
                 {wishlistCount}
               </span>
             )}
@@ -147,92 +182,112 @@ export default function Navbar() {
           {/* Shopping Bag Button */}
           <Link
             href="/cart"
-            className="p-1.5 text-jet-black hover:text-graphite-gray transition-colors cursor-pointer relative rounded-none flex items-center justify-center"
+            className="p-2 text-jet-black hover:text-graphite-gray transition-all cursor-pointer relative rounded-full hover:bg-black/5 active:scale-95 flex items-center justify-center"
             aria-label="Shopping bag"
           >
             <ShoppingBagIcon size={18} />
-            {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 bg-jet-black text-snow-white text-[9px] font-bold font-inter flex items-center justify-center border border-border-color rounded-none select-none">
-                {itemCount}
-              </span>
-            )}
+            <AnimatePresence>
+              {itemCount > 0 && (
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="absolute top-0 right-0 min-w-[16px] h-[16px] bg-jet-black text-snow-white text-[9px] font-bold font-inter flex items-center justify-center rounded-full select-none"
+                >
+                  {itemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Link>
         </div>
       </div>
 
-      {/* Slide-Down Search Overlay Drawer */}
+      {/* Slide-Down Search Overlay */}
       <AnimatePresence>
         {isSearchOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute top-[56px] left-0 w-full bg-snow-white border-b border-border-color z-40"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute top-full left-0 w-full bg-snow-white/95 backdrop-blur-md overflow-hidden shadow-[0_10px_30px_-15px_rgba(0,0,0,0.1)]"
           >
-            <div className="w-full px-4 md:px-6 py-6 flex items-center gap-4">
-              <div className="relative flex-1">
+            <div className="w-full max-w-4xl mx-auto px-6 py-10 flex items-center gap-6">
+              <div className="relative flex-1 group">
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="SEARCH STREETWEAR..."
-                  className="w-full bg-snow-white text-jet-black placeholder-graphite-gray border border-border-color rounded-none px-4 py-3 text-sm font-inter uppercase tracking-[0.06em] focus:outline focus:outline-2 focus:outline-jet-black focus:outline-offset-2 focus:border-jet-black transition-all"
+                  placeholder="SEARCH COLLECTION..."
+                  className="w-full bg-transparent text-jet-black placeholder-graphite-gray/40 border-b-2 border-black/10 px-0 py-4 text-xl sm:text-2xl font-syne font-bold uppercase tracking-[0.04em] focus:outline-none focus:border-jet-black transition-colors"
                 />
               </div>
               <button
                 onClick={() => setIsSearchOpen(false)}
-                className="p-3 border border-border-color text-jet-black hover:text-graphite-gray hover:border-jet-black transition-colors cursor-pointer rounded-none flex items-center justify-center"
+                className="p-3 text-jet-black hover:text-graphite-gray transition-transform hover:rotate-90 duration-300 rounded-full"
                 aria-label="Close search"
               >
-                <XIcon size={18} />
+                <XIcon size={24} />
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Mobile Menu Overlay Drawer */}
+      {/* Full-Screen Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="absolute top-[56px] left-0 w-full bg-snow-white border-t border-border-color md:hidden overflow-y-auto max-h-[calc(100vh-56px)] z-40"
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="absolute top-full left-0 w-full h-[calc(100vh-60px)] bg-snow-white/95 backdrop-blur-2xl z-40 md:hidden flex flex-col justify-between overflow-y-auto"
           >
-            <div className="flex flex-col p-6 gap-6">
-              {NAV_LINKS.map((link) => (
-                <Link
+            <div className="flex flex-col p-8 pt-12 gap-8">
+              {NAV_LINKS.map((link, i) => (
+                <motion.div
                   key={link.label}
-                  href={link.href}
-                  className="font-inter text-[14px] font-semibold tracking-[0.12em] uppercase text-jet-black hover:text-graphite-gray transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.4, delay: i * 0.05, ease: [0.4, 0, 0.2, 1] }}
                 >
-                  {link.label}
-                </Link>
+                  <Link
+                    href={link.href}
+                    className="font-syne text-3xl font-bold uppercase tracking-tight text-jet-black hover:text-graphite-gray transition-colors inline-block relative overflow-hidden group"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-jet-black origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out" />
+                  </Link>
+                </motion.div>
               ))}
+            </div>
 
-              {/* Account Link in Mobile Menu with User Icon */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="p-8 pb-12 flex flex-col gap-6"
+            >
               <Link
                 href="/account"
-                className="font-inter text-[14px] font-semibold tracking-[0.12em] uppercase text-jet-black hover:text-graphite-gray transition-colors flex items-center gap-2"
+                className="font-inter text-[12px] font-semibold tracking-[0.15em] uppercase text-graphite-gray hover:text-jet-black transition-colors flex items-center gap-3"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <UserIcon size={18} />
-                <span>Account</span>
+                <span>My Account</span>
               </Link>
               
-              <div className="pt-6 border-t border-border-color/10 flex flex-col gap-4 text-graphite-gray text-xs font-inter uppercase tracking-[0.08em]">
-                <Link
-                  href="/wishlist"
-                  className="hover:text-jet-black transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Wishlist
-                </Link>
-              </div>
-            </div>
+              <Link
+                href="/wishlist"
+                className="font-inter text-[12px] font-semibold tracking-[0.15em] uppercase text-graphite-gray hover:text-jet-black transition-colors flex items-center gap-3"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <HeartIcon size={18} />
+                <span>Wishlist</span>
+              </Link>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
