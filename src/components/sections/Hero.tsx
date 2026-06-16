@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect, useCallback, CSSProperties } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@animateicons/react/lucide";
-import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 /**
- * Real product shots with their respective categories
+ * Real product shots with their respective categories and premium subtitles
  */
 const HERO_ITEMS = [
-  { src: "/assets/hero-img/couple_collection.png", category: "Couples Collection" },
-  { src: "/assets/hero-img/graphic_hoodie.png", category: "Graphic Hoodies" },
-  { src: "/assets/hero-img/graphic_tshirt.png", category: "Graphic T-Shirts" },
-  { src: "/assets/hero-img/solid_hoodie.png", category: "Solid Hoodies" },
-  { src: "/assets/hero-img/solid_tshirt.png", category: "Solid T-Shirts" },
+  { src: "/assets/hero-img/couple_collection.png", category: "Couples Collection", subtitle: "Sync your aesthetic. Premium matching hoodies and tees designed exclusively for couples.", href: "/shop" },
+  { src: "/assets/hero-img/graphic_hoodie.png", category: "Graphic Hoodies", subtitle: "Bold streetwear staples. Heavyweight warmth crafted for the culture.", href: "/shop" },
+  { src: "/assets/hero-img/graphic_tshirt.png", category: "Graphic Tees", subtitle: "Wear your vibe. Exclusive prints on ultra-premium heavyweight cotton.", href: "/shop" },
+  { src: "/assets/hero-img/solid_hoodie.png", category: "Solid Hoodies", subtitle: "Minimalist luxury. The perfect balance of class, comfort, and aesthetic.", href: "/shop" },
+  { src: "/assets/hero-img/solid_tshirt.png", category: "Solid Tees", subtitle: "Cool premium solids. An effortless aesthetic look with undeniable class.", href: "/shop" },
 ];
 
 const FIGURE_COUNT = HERO_ITEMS.length;
@@ -36,19 +37,19 @@ interface SlotConfig {
 // ── Slot style configs ─────────────────────────────────
 
 const DESKTOP_SLOTS: Record<SlotPosition, SlotConfig> = {
-  center: { scale: 1.1, translateX: "0vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "70vh" },
-  left:   { scale: 0.8, translateX: "-22vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
-  right:  { scale: 0.8, translateX: "22vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
-  back:   { scale: 0.5, translateX: "0vw", translateY: "-15%", blur: 4, opacity: 0.15, zIndex: 10, height: "70vh" },
-  hidden: { scale: 0.4, translateX: "0vw", translateY: "-20%", blur: 8, opacity: 0, zIndex: 0, height: "70vh" },
+  center: { scale: 1.1, translateX: "15vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "70vh" },
+  left:   { scale: 0.8, translateX: "-5vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
+  right:  { scale: 0.8, translateX: "35vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
+  back:   { scale: 0.5, translateX: "15vw", translateY: "-15%", blur: 4, opacity: 0.15, zIndex: 10, height: "70vh" },
+  hidden: { scale: 0.4, translateX: "15vw", translateY: "-20%", blur: 8, opacity: 0, zIndex: 0, height: "70vh" },
 };
 
 const TABLET_SLOTS: Record<SlotPosition, SlotConfig> = {
-  center: { scale: 1.1, translateX: "0vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "60vh" },
-  left:   { scale: 0.8, translateX: "-28vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
-  right:  { scale: 0.8, translateX: "28vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
-  back:   { scale: 0.5, translateX: "0vw", translateY: "-12%", blur: 4, opacity: 0.15, zIndex: 10, height: "60vh" },
-  hidden: { scale: 0.4, translateX: "0vw", translateY: "-15%", blur: 8, opacity: 0, zIndex: 0, height: "60vh" },
+  center: { scale: 1.1, translateX: "10vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "60vh" },
+  left:   { scale: 0.8, translateX: "-15vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
+  right:  { scale: 0.8, translateX: "35vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
+  back:   { scale: 0.5, translateX: "10vw", translateY: "-12%", blur: 4, opacity: 0.15, zIndex: 10, height: "60vh" },
+  hidden: { scale: 0.4, translateX: "10vw", translateY: "-15%", blur: 8, opacity: 0, zIndex: 0, height: "60vh" },
 };
 
 const MOBILE_SLOTS: Record<SlotPosition, SlotConfig> = {
@@ -239,24 +240,51 @@ export default function Hero() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(document.hidden)}
     >
-      {/* Category Typography - Bottom Left */}
-      <div className="absolute z-40 left-6 md:left-10 bottom-[6rem] md:bottom-12 pointer-events-none w-[70vw] md:w-auto">
-        <p className="font-inter font-bold text-[10px] md:text-[12px] tracking-[0.2em] uppercase text-graphite-gray mb-1 md:mb-2">
+      {/* Category Typography - Left Aligned / Vertical Center */}
+      <div className="absolute z-40 left-6 md:left-12 top-auto bottom-[6.5rem] md:bottom-auto md:top-1/2 md:-translate-y-1/2 pointer-events-none w-[85vw] md:w-[50vw] lg:w-[45vw]">
+        <p className="font-inter font-bold text-[10px] md:text-[12px] tracking-[0.2em] uppercase text-graphite-gray mb-2 md:mb-4">
           Featured
         </p>
-        <div className="relative h-[70px] md:h-[60px] lg:h-[80px]">
+        
+        {/* Grid stack for the typography to dynamically size the container */}
+        <div className="relative grid grid-cols-1 grid-rows-1 mb-6 md:mb-8">
           {HERO_ITEMS.map((item, idx) => (
-            <h2
+            <div
               key={idx}
-              className={`font-inter font-black text-[22px] sm:text-3xl md:text-5xl lg:text-6xl uppercase text-jet-black tracking-tighter leading-[1.1] absolute top-0 left-0 md:whitespace-nowrap transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+              className={cn(
+                "col-start-1 row-start-1 w-full flex flex-col justify-center gap-2 md:gap-4 transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]",
                 activeIndex === idx
-                  ? "translate-y-0 opacity-100 blur-none"
-                  : "translate-y-4 opacity-0 blur-sm"
-              }`}
+                  ? "translate-y-0 opacity-100 blur-none pointer-events-auto z-10"
+                  : "translate-y-6 opacity-0 blur-sm pointer-events-none z-0"
+              )}
             >
-              {item.category}
-            </h2>
+              <h2 className="font-inter font-black text-[28px] sm:text-4xl md:text-5xl lg:text-7xl uppercase text-jet-black tracking-tighter leading-[1.05] md:leading-[1.1] text-balance">
+                {item.category}
+              </h2>
+              <p className="font-inter font-medium text-xs sm:text-sm md:text-base text-graphite-gray leading-relaxed max-w-[95%] md:max-w-[85%]">
+                {item.subtitle}
+              </p>
+            </div>
           ))}
+        </div>
+
+        {/* CTA Button */}
+        <div className="pointer-events-auto flex">
+          <Link
+            href={HERO_ITEMS[activeIndex].href}
+            className="group relative inline-flex items-center gap-4 overflow-hidden border border-jet-black bg-transparent px-6 py-3.5 md:py-4 font-inter text-xs md:text-sm font-bold uppercase tracking-[0.15em] text-jet-black transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)] hover:bg-jet-black hover:text-snow-white hover:border-jet-black focus:outline-none focus:ring-2 focus:ring-jet-black focus:ring-offset-2"
+          >
+            <span>Explore Collection</span>
+            <div className="relative flex h-3 w-3 sm:h-4 sm:w-4 items-center justify-center overflow-hidden">
+               {/* Arrow sliding effect */}
+               <svg className="absolute transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:translate-x-[150%]" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter"/>
+               </svg>
+               <svg className="absolute -translate-x-[150%] transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:translate-x-0" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M1 7H13M13 7L7 1M13 7L7 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter"/>
+               </svg>
+            </div>
+          </Link>
         </div>
       </div>
 
