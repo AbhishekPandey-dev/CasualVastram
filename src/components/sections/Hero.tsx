@@ -12,6 +12,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeftIcon, ChevronRightIcon } from "@animateicons/react/lucide";
 import { cn } from "@/lib/utils";
+import {
+  HERO_ITEMS,
+  FIGURE_COUNT,
+  AUTO_ADVANCE_MS,
+  SWIPE_THRESHOLD_PX,
+  SLOTS,
+  type SlotPosition,
+} from "@/config/hero.config";
 
 /**
  * Editorial product carousel for the Casual Vastram hero.
@@ -24,40 +32,6 @@ import { cn } from "@/lib/utils";
  * figures scale to the *stage*, not the viewport — robust from 320px to ultrawide
  * with zero JS breakpoint logic (and therefore no SSR layout flash).
  */
-const HERO_ITEMS = [
-  { src: "/assets/hero-img/couple_collection.png", category: "Couples Collection", subtitle: "Sync your aesthetic. Premium matching hoodies and tees designed exclusively for couples.", href: "/shop" },
-  { src: "/assets/hero-img/graphic_hoodie.png", category: "Graphic Hoodies", subtitle: "Bold streetwear staples. Heavyweight warmth crafted for the culture.", href: "/shop" },
-  { src: "/assets/hero-img/graphic_tshirt.png", category: "Graphic Tees", subtitle: "Wear your vibe. Exclusive prints on ultra-premium heavyweight cotton.", href: "/shop" },
-  { src: "/assets/hero-img/solid_hoodie.png", category: "Solid Hoodies", subtitle: "Minimalist luxury. The perfect balance of class, comfort, and aesthetic.", href: "/shop" },
-  { src: "/assets/hero-img/solid_tshirt.png", category: "Solid Tees", subtitle: "Cool premium solids. An effortless aesthetic look with undeniable class.", href: "/shop" },
-];
-
-const FIGURE_COUNT = HERO_ITEMS.length;
-const AUTO_ADVANCE_MS = 4500;
-const SWIPE_THRESHOLD_PX = 44;
-
-// ── Types ──────────────────────────────────────────────
-
-type SlotPosition = "center" | "left" | "right" | "back" | "hidden";
-
-interface SlotConfig {
-  translateX: string; // container-relative (cqw)
-  translateY: string; // container-relative (cqh)
-  scale: number;
-  blur: number;
-  opacity: number;
-  zIndex: number;
-}
-
-// ── Coverflow slot configs (relative to the stage, not the viewport) ──
-
-const SLOTS: Record<SlotPosition, SlotConfig> = {
-  center: { translateX: "0cqw", translateY: "0cqh", scale: 1, blur: 0, opacity: 1, zIndex: 30 },
-  right: { translateX: "33cqw", translateY: "3cqh", scale: 0.72, blur: 3, opacity: 0.3, zIndex: 20 },
-  left: { translateX: "-33cqw", translateY: "3cqh", scale: 0.72, blur: 3, opacity: 0.3, zIndex: 20 },
-  back: { translateX: "0cqw", translateY: "-6cqh", scale: 0.5, blur: 7, opacity: 0.12, zIndex: 10 },
-  hidden: { translateX: "0cqw", translateY: "-10cqh", scale: 0.4, blur: 10, opacity: 0, zIndex: 0 },
-};
 
 // Height drives the figure; width follows the 3:4 source ratio. min() guarantees
 // the figure is never wider than the stage on tall/narrow (mobile) panes.
