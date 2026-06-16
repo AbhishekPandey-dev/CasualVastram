@@ -92,7 +92,7 @@ export default function Navbar() {
       <div className="w-full px-6 md:px-10 flex items-center justify-between">
         
         {/* Left: Desktop Navigation Links */}
-        <nav className="hidden md:flex flex-1 items-center gap-8 group/nav">
+        <nav className="hidden lg:flex flex-1 items-center gap-8 group/nav">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
@@ -112,7 +112,7 @@ export default function Navbar() {
         </nav>
 
         {/* Left: Mobile Menu Toggle Button */}
-        <div className="md:hidden flex flex-1 items-center">
+        <div className="lg:hidden flex flex-1 items-center">
           <button
             onClick={() => {
               setIsMobileMenuOpen(!isMobileMenuOpen);

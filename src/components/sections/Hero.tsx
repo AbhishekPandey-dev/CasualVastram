@@ -2,23 +2,25 @@
 
 import React, { useState, useEffect, useCallback, CSSProperties } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@animateicons/react/lucide";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
- * Real product shots from public/assets/hero-img
+ * Real product shots with their respective categories
  */
-const FIGURES = [
-  "/assets/hero-img/hero (1).png",
-  "/assets/hero-img/hero (2).png",
-  "/assets/hero-img/hero (3).png",
-  "/assets/hero-img/hero (4).png",
+const HERO_ITEMS = [
+  { src: "/assets/hero-img/couple_collection.png", category: "Couples Collection" },
+  { src: "/assets/hero-img/graphic_hoodie.png", category: "Graphic Hoodies" },
+  { src: "/assets/hero-img/graphic_tshirt.png", category: "Graphic T-Shirts" },
+  { src: "/assets/hero-img/solid_hoodie.png", category: "Solid Hoodies" },
+  { src: "/assets/hero-img/solid_tshirt.png", category: "Solid T-Shirts" },
 ];
 
-const FIGURE_COUNT = FIGURES.length;
+const FIGURE_COUNT = HERO_ITEMS.length;
 const AUTO_ADVANCE_MS = 4500;
 
 // ── Types ──────────────────────────────────────────────
 
-type SlotPosition = "center" | "left" | "right" | "back";
+type SlotPosition = "center" | "left" | "right" | "back" | "hidden";
 type Breakpoint = "mobile" | "tablet" | "desktop";
 
 interface SlotConfig {
@@ -32,15 +34,13 @@ interface SlotConfig {
 }
 
 // ── Slot style configs ─────────────────────────────────
-// By keeping the height fixed within a breakpoint and animating scale, 
-// we ensure GPU acceleration and prevent layout jank.
-// translateX uses 'vw' to ensure side figures are pushed out relative to screen width.
 
 const DESKTOP_SLOTS: Record<SlotPosition, SlotConfig> = {
   center: { scale: 1.1, translateX: "0vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "70vh" },
   left:   { scale: 0.8, translateX: "-22vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
   right:  { scale: 0.8, translateX: "22vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
   back:   { scale: 0.5, translateX: "0vw", translateY: "-15%", blur: 4, opacity: 0.15, zIndex: 10, height: "70vh" },
+  hidden: { scale: 0.4, translateX: "0vw", translateY: "-20%", blur: 8, opacity: 0, zIndex: 0, height: "70vh" },
 };
 
 const TABLET_SLOTS: Record<SlotPosition, SlotConfig> = {
@@ -48,6 +48,7 @@ const TABLET_SLOTS: Record<SlotPosition, SlotConfig> = {
   left:   { scale: 0.8, translateX: "-28vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
   right:  { scale: 0.8, translateX: "28vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
   back:   { scale: 0.5, translateX: "0vw", translateY: "-12%", blur: 4, opacity: 0.15, zIndex: 10, height: "60vh" },
+  hidden: { scale: 0.4, translateX: "0vw", translateY: "-15%", blur: 8, opacity: 0, zIndex: 0, height: "60vh" },
 };
 
 const MOBILE_SLOTS: Record<SlotPosition, SlotConfig> = {
@@ -55,20 +56,20 @@ const MOBILE_SLOTS: Record<SlotPosition, SlotConfig> = {
   left:   { scale: 0.7, translateX: "-32vw", translateY: "5%", blur: 2, opacity: 0.35, zIndex: 20, height: "55vh" },
   right:  { scale: 0.7, translateX: "32vw", translateY: "5%", blur: 2, opacity: 0.35, zIndex: 20, height: "55vh" },
   back:   { scale: 0.4, translateX: "0vw", translateY: "-10%", blur: 4, opacity: 0.15, zIndex: 10, height: "55vh" },
+  hidden: { scale: 0.3, translateX: "0vw", translateY: "-15%", blur: 8, opacity: 0, zIndex: 0, height: "55vh" },
 };
 
 // ── Helpers ────────────────────────────────────────────
 
-/** Returns the positional slot for a given figure index relative to activeIndex */
 function getSlot(figureIndex: number, activeIndex: number): SlotPosition {
   const diff = (figureIndex - activeIndex + FIGURE_COUNT) % FIGURE_COUNT;
   if (diff === 0) return "center";
   if (diff === 1) return "right";
   if (diff === FIGURE_COUNT - 1) return "left";
-  return "back";
+  if (diff === 2) return "back";
+  return "hidden";
 }
 
-/** Builds the inline CSSProperties for a figure in a given slot */
 function getSlotStyle(slot: SlotPosition, breakpoint: Breakpoint, reduceMotion: boolean): CSSProperties {
   const config = 
     breakpoint === "mobile" ? MOBILE_SLOTS[slot] : 
@@ -80,7 +81,6 @@ function getSlotStyle(slot: SlotPosition, breakpoint: Breakpoint, reduceMotion: 
     left: "50%",
     top: "50%",
     height: config.height,
-    // Note: translateX must be calculated with CSS because the parent is already -50% translated
     transform: `translate(-50%, -50%) translateX(${config.translateX}) translateY(${config.translateY}) scale(${config.scale})`,
     filter: config.blur > 0 ? `blur(${config.blur}px)` : "none",
     opacity: config.opacity,
@@ -92,7 +92,6 @@ function getSlotStyle(slot: SlotPosition, breakpoint: Breakpoint, reduceMotion: 
 
 // ── Custom Hooks ───────────────────────────────────────
 
-/** Detects viewport breakpoint for responsive slot configs */
 function useBreakpoint(): Breakpoint {
   const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
 
@@ -112,7 +111,6 @@ function useBreakpoint(): Breakpoint {
   return breakpoint;
 }
 
-/** Detects prefers-reduced-motion user preference */
 function useReducedMotion(): boolean {
   const [reduceMotion, setReduceMotion] = useState(false);
 
@@ -241,16 +239,37 @@ export default function Hero() {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(document.hidden)}
     >
+      {/* Category Typography - Bottom Left */}
+      <div className="absolute z-40 left-6 md:left-10 bottom-[6rem] md:bottom-12 pointer-events-none w-[70vw] md:w-auto">
+        <p className="font-inter font-bold text-[10px] md:text-[12px] tracking-[0.2em] uppercase text-graphite-gray mb-1 md:mb-2">
+          Featured
+        </p>
+        <div className="relative h-[70px] md:h-[60px] lg:h-[80px]">
+          {HERO_ITEMS.map((item, idx) => (
+            <h2
+              key={idx}
+              className={`font-inter font-black text-[22px] sm:text-3xl md:text-5xl lg:text-6xl uppercase text-jet-black tracking-tighter leading-[1.1] absolute top-0 left-0 md:whitespace-nowrap transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] ${
+                activeIndex === idx
+                  ? "translate-y-0 opacity-100 blur-none"
+                  : "translate-y-4 opacity-0 blur-sm"
+              }`}
+            >
+              {item.category}
+            </h2>
+          ))}
+        </div>
+      </div>
+
       {/* Carousel Figures */}
-      {FIGURES.map((src, index) => {
+      {HERO_ITEMS.map((item, index) => {
         const slot = getSlot(index, activeIndex);
         const style = getSlotStyle(slot, breakpoint, reduceMotion);
 
         return (
           <img
             key={index}
-            src={src}
-            alt=""
+            src={item.src}
+            alt={item.category}
             draggable={false}
             style={style}
             className="pointer-events-none select-none object-contain"
@@ -263,8 +282,8 @@ export default function Hero() {
         className="absolute z-40 flex flex-col items-end"
         // eslint-disable-next-line react/forbid-dom-props
         style={{
-          right: breakpoint === "mobile" ? "1rem" : "1.5rem",
-          bottom: breakpoint === "mobile" ? "1rem" : "1.5rem",
+          right: breakpoint === "mobile" ? "1.5rem" : "2rem",
+          bottom: breakpoint === "mobile" ? "2.5rem" : "3rem",
         }}
       >
         {/* Prev / Next Buttons */}
@@ -279,3 +298,4 @@ export default function Hero() {
     </section>
   );
 }
+
