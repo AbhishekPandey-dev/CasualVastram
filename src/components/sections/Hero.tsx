@@ -260,7 +260,7 @@ export default function Hero() {
 
       {/* Navigation Cluster — bottom-right */}
       <div
-        className="absolute z-50 flex flex-col items-end"
+        className="absolute z-40 flex flex-col items-end"
         // eslint-disable-next-line react/forbid-dom-props
         style={{
           right: breakpoint === "mobile" ? "1rem" : "1.5rem",
