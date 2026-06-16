@@ -4,13 +4,13 @@ import React, { useState, useEffect, useCallback, CSSProperties } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@animateicons/react/lucide";
 
 /**
- * 4 placeholder figurine images — swap with real product shots later.
+ * Real product shots from public/assets/hero-img
  */
 const FIGURES = [
-  "https://placehold.co/800x800/FF6B6B/FFFFFF?text=Figure+1",
-  "https://placehold.co/800x800/4ECDC4/FFFFFF?text=Figure+2",
-  "https://placehold.co/800x800/45B7D1/FFFFFF?text=Figure+3",
-  "https://placehold.co/800x800/96CEB4/FFFFFF?text=Figure+4",
+  "/assets/hero-img/hero (1).png",
+  "/assets/hero-img/hero (2).png",
+  "/assets/hero-img/hero (3).png",
+  "/assets/hero-img/hero (4).png",
 ];
 
 const FIGURE_COUNT = FIGURES.length;
@@ -19,6 +19,7 @@ const AUTO_ADVANCE_MS = 4500;
 // ── Types ──────────────────────────────────────────────
 
 type SlotPosition = "center" | "left" | "right" | "back";
+type Breakpoint = "mobile" | "tablet" | "desktop";
 
 interface SlotConfig {
   scale: number;
@@ -31,19 +32,29 @@ interface SlotConfig {
 }
 
 // ── Slot style configs ─────────────────────────────────
+// By keeping the height fixed within a breakpoint and animating scale, 
+// we ensure GPU acceleration and prevent layout jank.
+// translateX uses 'vw' to ensure side figures are pushed out relative to screen width.
 
 const DESKTOP_SLOTS: Record<SlotPosition, SlotConfig> = {
-  center: { scale: 1.45, translateX: "0%", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "78vh" },
-  left:   { scale: 0.68, translateX: "-40%", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "44vh" },
-  right:  { scale: 0.68, translateX: "40%", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "44vh" },
-  back:   { scale: 0.38, translateX: "0%", translateY: "-18%", blur: 4, opacity: 0.15, zIndex: 10, height: "24vh" },
+  center: { scale: 1.1, translateX: "0vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "70vh" },
+  left:   { scale: 0.8, translateX: "-22vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
+  right:  { scale: 0.8, translateX: "22vw", translateY: "10%", blur: 2, opacity: 0.35, zIndex: 20, height: "70vh" },
+  back:   { scale: 0.5, translateX: "0vw", translateY: "-15%", blur: 4, opacity: 0.15, zIndex: 10, height: "70vh" },
+};
+
+const TABLET_SLOTS: Record<SlotPosition, SlotConfig> = {
+  center: { scale: 1.1, translateX: "0vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "60vh" },
+  left:   { scale: 0.8, translateX: "-28vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
+  right:  { scale: 0.8, translateX: "28vw", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "60vh" },
+  back:   { scale: 0.5, translateX: "0vw", translateY: "-12%", blur: 4, opacity: 0.15, zIndex: 10, height: "60vh" },
 };
 
 const MOBILE_SLOTS: Record<SlotPosition, SlotConfig> = {
-  center: { scale: 1.12, translateX: "0%", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "52vh" },
-  left:   { scale: 0.52, translateX: "-34%", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "32vh" },
-  right:  { scale: 0.52, translateX: "34%", translateY: "8%", blur: 2, opacity: 0.35, zIndex: 20, height: "32vh" },
-  back:   { scale: 0.28, translateX: "0%", translateY: "-14%", blur: 4, opacity: 0.15, zIndex: 10, height: "18vh" },
+  center: { scale: 1.0, translateX: "0vw", translateY: "0%", blur: 0, opacity: 1, zIndex: 30, height: "55vh" },
+  left:   { scale: 0.7, translateX: "-32vw", translateY: "5%", blur: 2, opacity: 0.35, zIndex: 20, height: "55vh" },
+  right:  { scale: 0.7, translateX: "32vw", translateY: "5%", blur: 2, opacity: 0.35, zIndex: 20, height: "55vh" },
+  back:   { scale: 0.4, translateX: "0vw", translateY: "-10%", blur: 4, opacity: 0.15, zIndex: 10, height: "55vh" },
 };
 
 // ── Helpers ────────────────────────────────────────────
@@ -58,14 +69,18 @@ function getSlot(figureIndex: number, activeIndex: number): SlotPosition {
 }
 
 /** Builds the inline CSSProperties for a figure in a given slot */
-function getSlotStyle(slot: SlotPosition, isMobile: boolean, reduceMotion: boolean): CSSProperties {
-  const config = isMobile ? MOBILE_SLOTS[slot] : DESKTOP_SLOTS[slot];
+function getSlotStyle(slot: SlotPosition, breakpoint: Breakpoint, reduceMotion: boolean): CSSProperties {
+  const config = 
+    breakpoint === "mobile" ? MOBILE_SLOTS[slot] : 
+    breakpoint === "tablet" ? TABLET_SLOTS[slot] : 
+    DESKTOP_SLOTS[slot];
 
   return {
     position: "absolute",
     left: "50%",
     top: "50%",
     height: config.height,
+    // Note: translateX must be calculated with CSS because the parent is already -50% translated
     transform: `translate(-50%, -50%) translateX(${config.translateX}) translateY(${config.translateY}) scale(${config.scale})`,
     filter: config.blur > 0 ? `blur(${config.blur}px)` : "none",
     opacity: config.opacity,
@@ -77,20 +92,24 @@ function getSlotStyle(slot: SlotPosition, isMobile: boolean, reduceMotion: boole
 
 // ── Custom Hooks ───────────────────────────────────────
 
-/** Detects viewport below 640px for responsive slot configs */
-function useIsMobile(): boolean {
-  const [isMobile, setIsMobile] = useState(false);
+/** Detects viewport breakpoint for responsive slot configs */
+function useBreakpoint(): Breakpoint {
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>("desktop");
 
   useEffect(() => {
-    const mql = window.matchMedia("(max-width: 639px)");
-    setIsMobile(mql.matches);
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 640) setBreakpoint("mobile");
+      else if (width < 1024) setBreakpoint("tablet");
+      else setBreakpoint("desktop");
+    };
 
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
+    handleResize(); // Set initial
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  return isMobile;
+  return breakpoint;
 }
 
 /** Detects prefers-reduced-motion user preference */
@@ -114,10 +133,11 @@ function useReducedMotion(): boolean {
 interface NavButtonProps {
   direction: "prev" | "next";
   onClick: () => void;
-  isMobile: boolean;
+  breakpoint: Breakpoint;
 }
 
-const NavButton: React.FC<NavButtonProps> = ({ direction, onClick, isMobile }) => {
+const NavButton: React.FC<NavButtonProps> = ({ direction, onClick, breakpoint }) => {
+  const isMobile = breakpoint === "mobile";
   const iconSize = isMobile ? 18 : 20;
   const label = direction === "prev" ? "Previous figure" : "Next figure";
 
@@ -175,7 +195,7 @@ const ProgressDots: React.FC<ProgressDotsProps> = ({ count, activeIndex }) => (
 export default function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const isMobile = useIsMobile();
+  const breakpoint = useBreakpoint();
   const reduceMotion = useReducedMotion();
 
   const goNext = useCallback(() => {
@@ -224,7 +244,7 @@ export default function Hero() {
       {/* Carousel Figures */}
       {FIGURES.map((src, index) => {
         const slot = getSlot(index, activeIndex);
-        const style = getSlotStyle(slot, isMobile, reduceMotion);
+        const style = getSlotStyle(slot, breakpoint, reduceMotion);
 
         return (
           <img
@@ -243,14 +263,14 @@ export default function Hero() {
         className="absolute z-50 flex flex-col items-end"
         // eslint-disable-next-line react/forbid-dom-props
         style={{
-          right: isMobile ? "1rem" : "1.5rem",
-          bottom: isMobile ? "1rem" : "1.5rem",
+          right: breakpoint === "mobile" ? "1rem" : "1.5rem",
+          bottom: breakpoint === "mobile" ? "1rem" : "1.5rem",
         }}
       >
         {/* Prev / Next Buttons */}
         <div className="flex items-center gap-3">
-          <NavButton direction="prev" onClick={goPrev} isMobile={isMobile} />
-          <NavButton direction="next" onClick={goNext} isMobile={isMobile} />
+          <NavButton direction="prev" onClick={goPrev} breakpoint={breakpoint} />
+          <NavButton direction="next" onClick={goNext} breakpoint={breakpoint} />
         </div>
 
         {/* Progress Dots */}
