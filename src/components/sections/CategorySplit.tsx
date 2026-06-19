@@ -162,7 +162,7 @@ class Media {
           float edgeSmooth = 0.002;
           float alpha = 1.0 - smoothstep(-edgeSmooth, edgeSmooth, d);
           
-          gl_FragColor = vec4(color.rgb, alpha);
+          gl_FragColor = vec4(color.rgb, color.a * alpha);
         }
       `,
       uniforms: {
@@ -366,9 +366,9 @@ class App {
     borderRadius: number,
   ) {
     const defaultItems: GalleryItem[] = [
-      { image: `https://picsum.photos/seed/1/800/600?grayscale` },
-      { image: `https://picsum.photos/seed/2/800/600?grayscale` },
-      { image: `https://picsum.photos/seed/3/800/600?grayscale` },
+      { image: `/assets/example-img/full-tshirt.png` },
+      { image: `/assets/example-img/hoodie.png` },
+      { image: `/assets/example-img/half-tshirt.png` },
     ];
 
     const galleryItems = items && items.length > 0 ? items : defaultItems;
@@ -496,7 +496,7 @@ class App {
 const CategorySplit = ({
   items,
   bend = 3,
-  borderRadius = 0.05,
+  borderRadius = 0,
   scrollSpeed = 2,
   scrollEase = 0.05,
   className,
