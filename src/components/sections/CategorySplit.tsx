@@ -10,11 +10,16 @@ import {
   Transform,
   type OGLRenderingContext,
 } from "ogl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { motion, useSpring, useTransform } from "framer-motion";
 
 export interface GalleryItem {
   image: string;
+  category?: string;
+  buttonText?: string;
+  buttonLink?: string;
 }
 
 interface CategorySplitProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -58,6 +63,7 @@ class Media {
   viewport: { width: number; height: number };
   bend: number;
   borderRadius: number;
+  domElement: HTMLElement | null;
   program!: Program;
   plane!: Mesh;
   extra: number = 0;
@@ -82,6 +88,7 @@ class Media {
     viewport,
     bend,
     borderRadius = 0,
+    domElement,
   }: {
     geometry: Plane;
     gl: OGLRenderingContext;
@@ -94,6 +101,7 @@ class Media {
     viewport: { width: number; height: number };
     bend: number;
     borderRadius: number;
+    domElement?: HTMLElement | null;
   }) {
     this.geometry = geometry;
     this.gl = gl;
@@ -106,6 +114,7 @@ class Media {
     this.viewport = viewport;
     this.bend = bend;
     this.borderRadius = borderRadius;
+    this.domElement = domElement || null;
     this.createShader();
     this.createMesh();
     this.onResize();
@@ -240,6 +249,28 @@ class Media {
       this.extra += this.widthTotal;
       this.isBefore = this.isAfter = false;
     }
+
+    // Sync DOM Overlay — text stays flat, only tracks horizontal position
+    if (this.domElement) {
+      const screenX = (this.plane.position.x / this.viewport.width) * this.screen.width;
+
+      // Bake in the -50% centering offset
+      const halfW = this.domElement.offsetWidth / 2;
+      const halfH = this.domElement.offsetHeight / 2;
+
+      // Only translate X — no rotation, no vertical arc following
+      // Text and button stay at a fixed vertical center, sliding horizontally
+      this.domElement.style.transform = `translate3d(${screenX - halfW}px, ${-halfH}px, 0)`;
+
+      // Fade out based on distance from center
+      const distanceFromCenter = Math.abs(this.plane.position.x);
+      const normalizedDist = distanceFromCenter / (this.viewport.width / 2);
+      const opacity = Math.max(0, 1 - normalizedDist * 1.5);
+      
+      this.domElement.style.opacity = opacity.toString();
+      this.domElement.style.zIndex = Math.round((1 - normalizedDist) * 100).toString();
+      this.domElement.style.pointerEvents = opacity < 0.3 ? 'none' : 'auto';
+    }
   }
 
   onResize(
@@ -273,6 +304,13 @@ class Media {
     this.width = this.plane.scale.x + this.padding;
     this.widthTotal = this.width * this.length;
     this.x = this.width * this.index;
+
+    if (this.domElement) {
+      const pxWidth = (this.plane.scale.x / this.viewport.width) * this.screen.width;
+      const pxHeight = (this.plane.scale.y / this.viewport.height) * this.screen.height;
+      this.domElement.style.setProperty('--img-w', `${pxWidth}px`);
+      this.domElement.style.setProperty('--img-h', `${pxHeight}px`);
+    }
   }
 }
 
@@ -293,6 +331,7 @@ class App {
   screen!: { width: number; height: number };
   viewport!: { width: number; height: number };
   raf!: number;
+  domElements: (HTMLElement | null)[];
   boundOnResize!: () => void;
   boundOnWheel!: (e: WheelEvent) => void;
   boundOnTouchDown!: (e: MouseEvent | TouchEvent) => void;
@@ -307,18 +346,21 @@ class App {
       borderRadius,
       scrollSpeed,
       scrollEase,
+      domElements,
     }: {
       items?: GalleryItem[];
       bend: number;
       borderRadius: number;
       scrollSpeed: number;
       scrollEase: number;
+      domElements?: (HTMLElement | null)[];
     },
   ) {
     this.container = container;
     this.scrollSpeed = scrollSpeed;
     this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
+    this.domElements = domElements || [];
 
     autoBind(this);
 
@@ -366,13 +408,13 @@ class App {
     borderRadius: number,
   ) {
     const defaultItems: GalleryItem[] = [
-      { image: `/assets/example-img/full-tshirt.png` },
-      { image: `/assets/example-img/hoodie.png` },
-      { image: `/assets/example-img/half-tshirt.png` },
+      { image: "/assets/example-img/full-tshirt.png" },
+      { image: "/assets/example-img/hoodie.png" },
+      { image: "/assets/example-img/half-tshirt.png" },
     ];
 
     const galleryItems = items && items.length > 0 ? items : defaultItems;
-    this.mediasImages = [...galleryItems, ...galleryItems];
+    this.mediasImages = galleryItems;
     this.medias = this.mediasImages.map((data, index) => {
       return new Media({
         geometry: this.planeGeometry,
@@ -386,6 +428,7 @@ class App {
         viewport: this.viewport,
         bend,
         borderRadius,
+        domElement: this.domElements[index] || null,
       });
     });
   }
@@ -503,6 +546,31 @@ const CategorySplit = ({
   ...props
 }: CategorySplitProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const domRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const defaultItems: GalleryItem[] = [
+    { image: "/assets/example-img/full-tshirt.png" },
+    { image: "/assets/example-img/hoodie.png" },
+    { image: "/assets/example-img/half-tshirt.png" },
+  ];
+  
+  const galleryItems = items && items.length > 0 ? items : defaultItems;
+  const mediasImages = galleryItems;
+
+  // Custom Cursor Logic
+  const [isHovering, setIsHovering] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const cursorX = useSpring(0, { stiffness: 400, damping: 28, mass: 0.5 });
+  const cursorY = useSpring(0, { stiffness: 400, damping: 28, mass: 0.5 });
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+    },
+    [cursorX, cursorY]
+  );
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -513,6 +581,7 @@ const CategorySplit = ({
       borderRadius,
       scrollSpeed,
       scrollEase,
+      domElements: domRefs.current,
     });
 
     return () => {
@@ -522,13 +591,115 @@ const CategorySplit = ({
 
   return (
     <div
-      ref={containerRef}
       className={cn(
-        "w-full h-full overflow-hidden cursor-grab active:cursor-grabbing",
+        "relative w-full h-full overflow-hidden",
+        isHovering ? "cursor-none" : "",
         className,
       )}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onMouseDown={() => setIsDragging(true)}
+      onMouseUp={() => setIsDragging(false)}
       {...props}
-    />
+    >
+      {/* Premium Custom Cursor */}
+      <motion.div
+        className="fixed top-0 left-0 pointer-events-none z-[100] flex items-center justify-center mix-blend-difference"
+        style={{
+          x: cursorX,
+          y: cursorY,
+          translateX: "-50%",
+          translateY: "-50%",
+          opacity: isHovering ? 1 : 0,
+          scale: isDragging ? 0.8 : isHovering ? 1 : 0.5,
+        }}
+        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      >
+        <div className="w-20 h-20 rounded-full border border-snow-white flex items-center justify-center bg-transparent backdrop-blur-sm">
+          <span className="text-snow-white font-inter text-[10px] tracking-widest uppercase font-medium">
+            {isDragging ? "DRAGGING" : "DRAG"}
+          </span>
+        </div>
+      </motion.div>
+
+      {/* WebGL Canvas Container */}
+      <motion.div 
+        ref={containerRef} 
+        className="absolute inset-0" 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+      />
+      
+      {/* HTML Overlays — one per duplicated media item */}
+      <div className="absolute inset-0 pointer-events-none">
+        {mediasImages.map((item, index) => (
+          <motion.div
+            key={index}
+            ref={(el) => {
+              domRefs.current[index] = el;
+            }}
+            className="absolute top-1/2 left-1/2 will-change-transform pointer-events-none"
+            style={{
+              width: "var(--img-w, 280px)",
+              height: "var(--img-h, 320px)",
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 * index, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {/* ── Category Name — positioned ABOVE the image ── */}
+            {item.category && (
+              <div
+                className="absolute left-0 right-0 text-center"
+                style={{ bottom: "calc(100% + 16px)" }}
+              >
+                <span
+                  className="font-syne font-bold uppercase text-jet-black"
+                  style={{
+                    fontSize: "clamp(1rem, 1.8vw, 1.5rem)",
+                    letterSpacing: "0.1em",
+                    lineHeight: "1.2",
+                  }}
+                >
+                  {item.category}
+                </span>
+              </div>
+            )}
+
+            {/* ── CTA Button — positioned BELOW the image ── */}
+            {item.buttonText && item.buttonLink && (
+              <div
+                className="absolute left-0 right-0 flex justify-center pointer-events-auto"
+                style={{ top: "calc(100% + 16px)" }}
+              >
+                <Link
+                  href={item.buttonLink}
+                  className="relative overflow-hidden group inline-flex items-center justify-center border border-jet-black bg-jet-black text-snow-white font-inter font-medium uppercase transition-all duration-300"
+                  style={{
+                    fontSize: "clamp(0.65rem, 0.9vw, 0.875rem)",
+                    letterSpacing: "0.06em",
+                    padding: "10px 24px",
+                  }}
+                  onDragStart={(e) => e.preventDefault()}
+                  onMouseEnter={() => setIsHovering(false)}
+                  onMouseLeave={() => setIsHovering(true)}
+                >
+                  <span className="relative z-10 mix-blend-difference text-snow-white group-hover:text-jet-black transition-colors duration-300 flex items-center gap-2">
+                    {item.buttonText}
+                    <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={1.5} d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                  <div className="absolute inset-0 bg-snow-white transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" />
+                </Link>
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 };
 
