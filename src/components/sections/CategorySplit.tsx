@@ -676,7 +676,7 @@ const CategorySplit = ({
               >
                 <Link
                   href={item.buttonLink}
-                  className="relative overflow-hidden group inline-flex items-center justify-center border border-jet-black bg-jet-black text-snow-white font-inter font-medium uppercase transition-all duration-300"
+                  className="relative overflow-hidden group inline-flex items-center justify-center border border-jet-black bg-jet-black font-inter font-medium uppercase transition-all duration-500"
                   style={{
                     fontSize: "clamp(0.65rem, 0.9vw, 0.875rem)",
                     letterSpacing: "0.06em",
@@ -686,13 +686,22 @@ const CategorySplit = ({
                   onMouseEnter={() => setIsHovering(false)}
                   onMouseLeave={() => setIsHovering(true)}
                 >
-                  <span className="relative z-10 mix-blend-difference text-snow-white group-hover:text-jet-black transition-colors duration-300 flex items-center gap-2">
-                    {item.buttonText}
-                    <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={1.5} d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
+                  <div className="absolute inset-0 bg-snow-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+                  
+                  <span className="relative z-10 flex flex-col items-center justify-center overflow-hidden h-[1.2rem]">
+                    <span className="flex items-center gap-2 text-snow-white group-hover:-translate-y-8 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]">
+                      {item.buttonText}
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={1.5} d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                    <span className="absolute flex items-center gap-2 text-jet-black translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]">
+                      {item.buttonText}
+                      <svg className="w-4 h-4 transform -rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={1.5} d="M5 12h14M12 5l7 7-7 7" />
+                      </svg>
+                    </span>
                   </span>
-                  <div className="absolute inset-0 bg-snow-white transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" />
                 </Link>
               </div>
             )}
